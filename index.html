@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart - E-commerce Platform</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Load Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Load Swiper.js for Carousels -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
+    <script>
+        // Configuration for Tailwind CSS in dark mode
+        tailwind.config = {
+            darkMode: 'class', // Use 'class' for dark mode
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-primary': {
+                            light: '#4F46E5', // Indigo
+                            DEFAULT: '#4338CA',
+                            dark: '#3730A3',
+                        },
+                        'brand-secondary': {
+                            light: '#EC4899', // Pink
+                            DEFAULT: '#DB2777',
+                            dark: '#BE185D',
+                        },
+                        'brand-accent': '#38BDF8', // Light Blue (Neon Accent)
+                    },
+                    keyframes: {
+                        // Animation for cart icon update
+                        pulseCart: {
+                            '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+                            '50%': { transform: 'scale(1.2)', opacity: '0.7' },
+                        },
+                        // Animation for modals
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(-20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        // Animation for page transitions
+                        pageFadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        // Animation for confirmation checkmark
+                        drawCheck: {
+                            '0%': { strokeDashoffset: '100' },
+                            '100%': { strokeDashoffset: '0' },
+                        },
+                        // Animation for form validation shake
+                        shake: {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-10px)' },
+                            '20%, 40%, 60%, 80%': { transform: 'translateX(10px)' },
+                        },
+                        // Animation for toast notifications
+                        toastIn: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        toastOut: {
+                            '0%': { opacity: '1', transform: 'translateY(0)' },
+                            '100%': { opacity: '0', transform: 'translateY(20px)' },
+                        }
+                    },
+                    animation: {
+                        pulseCart: 'pulseCart 0.5s ease-in-out',
+                        fadeIn: 'fadeIn 0.3s ease-out forwards',
+                        pageFadeIn: 'pageFadeIn 0.4s ease-out',
+                        drawCheck: 'drawCheck 0.5s ease-out forwards',
+                        shake: 'shake 0.5s ease-in-out',
+                        toastIn: 'toastIn 0.3s ease-out forwards',
+                        toastOut: 'toastOut 0.3s ease-in forwards',
+                    },
+                },
+            },
+        };
+    </script>
+
+    <style>
+        /* Custom styles to complement Tailwind */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712; /* Darkest gray */
+            color: #F9FAFB; /* Off-white */
+        }
+
+        /* Gradient text for hero section */
+        .hero-gradient-text {
+            background: linear-gradient(to right, #38BDF8, #4F46E5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom progress bar */
+        .progress-bar-container {
+            background-color: #374151; /* gray-700 */
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 1rem; /* h-4 */
+        }
+        .progress-bar-fill {
+            background: linear-gradient(to right, #4F46E5, #38BDF8);
+            height: 100%;
+            transition: width 0.5s ease-in-out;
+            border-radius: 9999px;
+        }
+
+        /* Custom tooltip for glossary */
+        .glossary-term {
+            border-bottom: 2px dotted #38BDF8; /* brand-accent */
+            cursor: pointer;
+            position: relative;
+        }
+
+        /* Page transition styles */
+        .page {
+            display: none; /* Hide all pages by default */
+        }
+        .page.active {
+            display: block; /* Show active page */
+            animation: pageFadeIn 0.4s ease-out; /* Apply fade-in animation */
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 50;
+            inset: 0;
+            overflow-y: auto;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.75);
+            padding: 1rem;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        /* Basic prose styles for AI content and blog */
+        .prose strong {
+            color: #F9FAFB; /* Off-white */
+        }
+        .prose p {
+            margin-bottom: 1rem;
+        }
+        .prose h1, .prose h2, .prose h3 {
+            color: #F9FAFB;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Confirmation animation */
+        .confirmation-circle {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawCheck 0.8s 0.2s ease-out forwards;
+        }
+        
+        /* Style for active filter button */
+        .filter-btn.active {
+            background-color: #4338CA; /* brand-primary */
+            color: #FFFFFF;
+        }
+        
+        /* Swiper Carousel Styles */
+        .swiper-button-next,
+        .swiper-button-prev {
+            color: #38BDF8; /* brand-accent */
+        }
+        .swiper-pagination-bullet-active {
+            background-color: #38BDF8;
+        }
+        .swiper-slide {
+            height: auto; /* Ensure slides size correctly */
+        }
+        
+        /* Toast Notification Container */
+        #toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .toast {
+            border-radius: 0.5rem;
+            padding: 1rem;
+            min-width: 250px;
+            max-width: 350px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: toastIn 0.3s ease-out forwards;
+        }
+        .toast.hiding {
+            animation: toastOut 0.3s ease-in forwards;
+        }
+        .toast-success {
+            background-color: #059669; /* green-600 */
+        }
+        .toast-error {
+            background-color: #DC2626; /* red-600 */
+        }
+        .toast-info {
+            background-color: #2563EB; /* blue-600 */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <!-- Header / Navigation -->
+    <header class="bg-gray-900/80 backdrop-blur-md sticky top-0 z-40 border-b border-gray-700">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="#" class="flex items-center space-x-2 nav-link flex-shrink-0" data-page="home">
+                    <i class="fa-solid fa-layer-group text-brand-accent text-2xl"></i>
+                    <span class="font-bold text-xl text-white">Smart E-Commerce Platform</span>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center justify-center flex-1 space-x-6">
+                    <a href="#" class="nav-link text-gray-300 hover:text-white transition-colors" data-page="home">Home</a>
+                    <a href="#" class="nav-link text-gray-300 hover:text-white transition-colors" data-page="courses">Courses</a>
+                    <a href="#" class="nav-link text-gray-300 hover:text-white transition-colors" data-page="tools">Tools</a>
+                    <a href="#" class="nav-link text-gray-300 hover:text-white transition-colors" data-page="blog">Blog</a>
+                    <a href="#" class="nav-link text-gray-300 hover:text-white transition-colors" data-page="community">Community</a>
+                    <a href="#" class="nav-link text-gray-300 hover:text-white transition-colors" data-page="dashboard">Dashboard</a>
+                    <a href="#" class="nav-link text-gray-300 hover:text-white transition-colors" data-page="about">About</a>
+                </div>
+
+                <!-- Icons & Mobile Menu -->
+                <div class="flex items-center space-x-4">
+                    <!-- Connect Wallet Button -->
+                    <button id="wallet-connect-button" class="hidden sm:block bg-gray-800 text-brand-accent border border-brand-accent/50 rounded-lg px-4 py-2 text-sm font-medium hover:bg-brand-accent hover:text-gray-900 transition-all active:scale-95 truncate max-w-[150px]">
+                        Connect Wallet
+                    </button>
+
+                    <!-- User Profile -->
+                    <button id="user-profile-button" class="text-gray-300 hover:text-white transition-colors active:scale-95">
+                        <i class="fa-solid fa-user text-xl"></i>
+                    </button>
+
+                    <!-- Cart Icon -->
+                    <button id="cart-button" class="relative text-gray-300 hover:text-white transition-colors active:scale-95">
+                        <i class="fa-solid fa-cart-shopping text-xl"></i>
+                        <span id="cart-count-badge" class="absolute -top-2 -right-3 bg-brand-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </button>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-button" class="md:hidden text-gray-300 hover:text-white active:scale-95">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu (Hidden by default) -->
+            <div id="mobile-menu" class="hidden md:hidden pb-4 space-y-2">
+                <a href="#" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700" data-page="home">Home</a>
+                <a href="#" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700" data-page="courses">Courses</a>
+                <a href="#" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700" data-page="tools">Tools</a>
+                <a href="#" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700" data-page="blog">Blog</a>
+                <a href="#" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700" data-page="community">Community</a>
+                <a href="#" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700" data-page="dashboard">Dashboard</a>
+                <a href="#" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700" data-page="about">About</a>
+                <button id="wallet-connect-button-mobile" class="w-full mt-2 sm:hidden bg-gray-800 text-brand-accent border border-brand-accent/50 rounded-lg px-4 py-2 text-sm font-medium hover:bg-brand-accent hover:text-gray-900 transition-all active:scale-95">
+                    Connect Wallet
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-12">
+
+        <!-- Page: Home -->
+        <section id="page-home" class="page active">
+            <!-- Hero Section -->
+            <div class="text-center py-16 md:py-24 rounded-2xl bg-gray-900/50 overflow-hidden relative">
+                <!-- Background Gradient -->
+                <div class="absolute inset-0 z-0 opacity-20">
+                    <div class="absolute left-1/4 top-0 w-32 h-32 md:w-64 md:h-64 bg-brand-primary rounded-full filter blur-3xl"></div>
+                    <div class="absolute right-1/4 bottom-0 w-32 h-32 md:w-64 md:h-64 bg-brand-accent rounded-full filter blur-3xl"></div>
+                </div>
+
+                <div class="relative z-10">
+                    <h1 class="text-4xl md:text-6xl font-extrabold tracking-tighter mb-6">
+                        Codeby <span class="hero-gradient-text">Tushu</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+                        From blockchain basics to advanced trading. Our expert-led courses provide the practical knowledge you need to succeed.
+                    </p>
+                    <button class="nav-link bg-brand-primary text-white font-semibold px-8 py-3 rounded-lg text-lg hover:bg-brand-primary-light transition-all shadow-lg shadow-brand-primary/30 active:scale-95" data-page="courses">
+                        Start Your Free Trial
+                    </button>
+
+                    <!-- Trust Signals -->
+                    <div class="mt-12 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6 text-gray-400">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-shield-halved text-green-400"></i>
+                            <span>SSL Secure</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <span>5-Star Rated</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-user-tie text-blue-300"></i>
+                            <span>Expert-Led</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Top Categories Section -->
+            <div class="mt-16">
+                <h2 class="text-3xl font-bold text-center mb-10">Explore Top Categories</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                    <a href="#" class="nav-link-category bg-gray-800 p-6 rounded-xl border border-gray-700 text-center transform hover:scale-105 hover:bg-gray-700 transition-all active:scale-95" data-category="Beginner" data-page="courses">
+                        <i class="fa-solid fa-rocket text-3xl text-green-400 mb-3"></i>
+                        <p class="font-semibold text-white">Beginner</p>
+                    </a>
+                    <a href="#" class="nav-link-category bg-gray-800 p-6 rounded-xl border border-gray-700 text-center transform hover:scale-105 hover:bg-gray-700 transition-all active:scale-95" data-category="DeFi" data-page="courses">
+                        <i class="fa-solid fa-hand-holding-dollar text-3xl text-blue-400 mb-3"></i>
+                        <p class="font-semibold text-white">DeFi</p>
+                    </a>
+                    <a href="#" class="nav-link-category bg-gray-800 p-6 rounded-xl border border-gray-700 text-center transform hover:scale-105 hover:bg-gray-700 transition-all active:scale-95" data-category="NFTs" data-page="courses">
+                        <i class="fa-solid fa-image text-3xl text-purple-400 mb-3"></i>
+                        <p class="font-semibold text-white">NFTs</p>
+                    </a>
+                    <a href="#" class="nav-link-category bg-gray-800 p-6 rounded-xl border border-gray-700 text-center transform hover:scale-105 hover:bg-gray-700 transition-all active:scale-95" data-category="Trading" data-page="courses">
+                        <i class="fa-solid fa-chart-line text-3xl text-yellow-400 mb-3"></i>
+                        <p class="font-semibold text-white">Trading</p>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Featured Courses Carousel -->
+            <div class="mt-16">
+                <h2 class="text-3xl font-bold text-center mb-10">Featured Courses</h2>
+                <div class="swiper" id="featured-courses-swiper">
+                    <div class="swiper-wrapper" id="featured-courses-container">
+                        <!-- Featured courses will be injected here by JS -->
+                    </div>
+                    <!-- Add Pagination -->
+                    <div class="swiper-pagination"></div>
+                    <!-- Add Navigation -->
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
+                </div>
+            </div>
+
+            <!-- Marketing Banner -->
+            <div class="mt-16 rounded-2xl bg-gradient-to-r from-brand-primary to-brand-accent p-8 md:p-12 flex flex-col md:flex-row items-center justify-between text-white">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-3">Ready to Achieve Financial Freedom?</h2>
+                    <p class="text-lg md:text-xl opacity-90 max-w-2xl">Stop guessing. Start learning from proven experts and build your high-return crypto portfolio today.</p>
+                </div>
+                <button class="nav-link mt-6 md:mt-0 md:ml-6 bg-white text-gray-900 font-bold px-8 py-3 rounded-lg text-lg hover:bg-gray-200 transition-all shadow-lg active:scale-95 flex-shrink-0" data-page="courses">
+                    Get Rich Smarter
+                </button>
+            </div>
+            
+            <!-- Testimonials Carousel -->
+            <div class="mt-16">
+                <h2 class="text-3xl font-bold text-center mb-10">What Our Students Say</h2>
+                <div class="swiper" id="testimonial-swiper">
+                    <div class="swiper-wrapper">
+                        <!-- Slide 1 -->
+                        <div class="swiper-slide h-full">
+                            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 h-full">
+                                <p class="text-gray-300 mb-4 italic">"This platform is a game-changer. I finally understand what 'gas fees' are and how to use a DeFi wallet safely."</p>
+                                <div class="flex items-center">
+                                    <img src="https://placehold.co/40x40/4F46E5/FFFFFF?text=AS" alt="User" class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <p class="font-semibold text-white">Alice Smith</p>
+                                        <p class="text-sm text-gray-400">DeFi Enthusiast</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Slide 2 -->
+                        <div class="swiper-slide h-full">
+                            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 h-full">
+                                <p class="text-gray-300 mb-4 italic">"The 'Blockchain Basics' course was perfect. Clear, concise, and no jargon. I went from zero to hero in a week."</p>
+                                <div class="flex items-center">
+                                    <img src="https://placehold.co/40x40/DB2777/FFFFFF?text=RJ" alt="User" class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <p class="font-semibold text-white">Robert Johnson</p>
+                                        <p class="text-sm text-gray-400">New Investor</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Slide 3 -->
+                        <div class="swiper-slide h-full">
+                            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 h-full">
+                                <p class="text-gray-300 mb-4 italic">"I loved the trading tools section. The simulated strategies helped me build confidence without risking real money."</p>
+                                <div class="flex items-center">
+                                    <img src="https://placehold.co/40x40/38BDF8/FFFFFF?text=MC" alt="User" class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <p class="font-semibold text-white">Maria Chen</p>
+                                        <p class="text-sm text-gray-400">Aspiring Trader</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Slide 4 -->
+                        <div class="swiper-slide h-full">
+                            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 h-full">
+                                <p class="text-gray-300 mb-4 italic">"The Smart Contract course was challenging but incredibly rewarding. The instructor was top-notch."</p>
+                                <div class="flex items-center">
+                                    <img src="https://placehold.co/40x40/0E7490/FFFFFF?text=DT" alt="User" class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <p class="font-semibold text-white">David Tran</p>
+                                        <p class="text-sm text-gray-400">Developer</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Add Pagination -->
+                    <div class="swiper-pagination"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page: Courses -->
+        <section id="page-courses" class="page">
+            <h1 class="text-3xl font-bold mb-4">Our Courses</h1>
+            
+            <!-- Course Filters -->
+            <div id="course-filter-buttons" class_="flex flex-wrap gap-2 mb-8">
+                <button class="filter-btn active bg-gray-700 text-gray-200 font-medium px-4 py-2 rounded-full hover:bg-gray-600 transition-all active:scale-95" data-category="all">All</button>
+                <!-- Other filter buttons will be injected by JS -->
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="course-list">
+                <!-- Course items will be dynamically injected here by JS -->
+            </div>
+        </section>
+
+        <!-- Page: Cart -->
+        <section id="page-cart" class="page">
+            <h1 class="text-3xl font-bold mb-8">Your Shopping Cart</h1>
+            <div id="cart-items-container" class="bg-gray-800 rounded-lg border border-gray-700">
+                <!-- Cart items will be dynamically injected here -->
+            </div>
+            <div id="cart-empty-message" class="text-center py-12 text-gray-400 hidden">
+                <i class="fa-solid fa-cart-arrow-down text-4xl mb-4"></i>
+                <p class="text-xl">Your cart is empty.</p>
+            </div>
+            
+            <!-- Cart Summary -->
+            <div id="cart-summary" class_="mt-8 flex justify-end hidden">
+                <div class="w-full md:w-1/2 lg:w-1/3 bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-lg text-gray-300">Subtotal:</span>
+                        <span id="cart-subtotal" class="text-lg font-semibold text-white">$0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-6 border-t border-gray-700 pt-4">
+                        <span class="text-xl font-bold text-white">Total:</span>
+                        <span id="cart-total" class="text-xl font-bold text-white">$0.00</span>
+                    </div>
+                    <button id="checkout-button" class="w-full bg-brand-primary text-white font-semibold py-3 rounded-lg text-lg hover:bg-brand-primary-light transition-all shadow-lg shadow-brand-primary/30 active:scale-95">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Page: Checkout -->
+        <section id="page-checkout" class="page">
+            <h1 class="text-3xl font-bold mb-8">Checkout</h1>
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Checkout Form -->
+                <div class="w-full md:w-2/3">
+                    <form id="checkout-form" class="bg-gray-800 p-6 sm:p-8 rounded-lg border border-gray-700 space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                            <input type="text" id="name" name="name" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                            <input type="email" id="email" name="email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        </div>
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-300 mb-2">Address (Simulated)</label>
+                            <input type="text" id="address" name="address" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        </div>
+                        <div class="pt-4">
+                            <button id="place-order-button" type="submit" class="w-full bg-brand-primary text-white font-semibold py-3 rounded-lg text-lg hover:bg-brand-primary-light transition-all shadow-lg shadow-brand-primary/30 flex items-center justify-center active:scale-95">
+                                <span class="button-text">Place Order</span>
+                                <i class="fa-solid fa-spinner fa-spin ml-2 button-loader hidden"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!-- Order Summary -->
+                <div class="w-full md:w-1/3">
+                    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                        <h2 class="text-2xl font-bold mb-4">Order Summary</h2>
+                        <div id="checkout-summary-items" class="space-y-4 mb-4 max-h-60 overflow-y-auto">
+                            <!-- Checkout summary items injected here -->
+                        </div>
+                        <div class="border-t border-gray-700 pt-4 space-y-2">
+                            <div class="flex justify-between text-gray-300">
+                                <span>Subtotal:</span>
+                                <span id="checkout-subtotal">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-white text-xl font-bold">
+                                <span>Total:</span>
+                                <span id="checkout-total">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page: Dashboard (User Progress) -->
+        <section id="page-dashboard" class="page">
+            <h1 class="text-3xl font-bold mb-4" id="dashboard-welcome">Welcome!</h1>
+            <p class="text-gray-400 mb-8">Track your course progress and achievements here.</p>
+            
+            <div id="dashboard-content" class="hidden">
+                <!-- Dashboard Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Main Content (2/3) -->
+                    <div class="lg:col-span-2 space-y-12">
+                        <!-- AI Learning Path Generator -->
+                        <div>
+                            <h2 class="text-2xl font-semibold mb-6">✨ AI Learning Path Generator</h2>
+                            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                                <p class="text-gray-300 mb-4">Tell us your crypto goal, and our AI assistant will suggest a personalized learning path for you based on our courses.</p>
+                                <label for="learning-goal" class="block text-sm font-medium text-gray-300 mb-2">My goal is to...</label>
+                                <textarea id="learning-goal" name="learning-goal" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all" placeholder="e.g., 'Understand how to create my own NFT collection' or 'Learn to trade crypto safely'"></textarea>
+                                <button id="generate-path-button" class="w-full mt-4 bg-brand-accent text-gray-900 font-semibold py-3 rounded-lg text-lg hover:bg-opacity-80 transition-all flex items-center justify-center active:scale-95">
+                                    <span class="button-text">✨ Generate My Path</span>
+                                    <i class="fa-solid fa-spinner fa-spin ml-2 button-loader hidden"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- My Courses -->
+                        <div>
+                            <h2 class="text-2xl font-semibold mb-6">My Courses</h2>
+                            <div id="dashboard-courses-container" class="space-y-6">
+                                <!-- Progress cards injected here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sidebar (1/3) -->
+                    <aside class="space-y-12">
+                        <!-- My Stats -->
+                        <div>
+                            <h2 class="text-2xl font-semibold mb-6">My Stats</h2>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 text-center">
+                                    <p class="text-3xl font-bold text-brand-accent" id="stat-courses-completed">0</p>
+                                    <p class="text-sm text-gray-400">Courses Completed</p>
+                                </div>
+                                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 text-center">
+                                    <p class="text-3xl font-bold text-yellow-400" id="stat-badges-earned">0</p>
+                                    <p class="text-sm text-gray-400">Badges Earned</p>
+                                </div>
+                            </div>
+                            <!-- Chart Placeholder -->
+                            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 mt-6">
+                                <h3 class="text-lg font-semibold text-white mb-3">Weekly Progress (Sim)</h3>
+                                <div class="flex items-end h-32 space-x-2">
+                                    <div class="flex-1 bg-gray-700 rounded-t-md" style="height: 30%"></div>
+                                    <div class="flex-1 bg-gray-700 rounded-t-md" style="height: 50%"></div>
+                                    <div class="flex-1 bg-gray-700 rounded-t-md" style="height: 20%"></div>
+                                    <div class="flex-1 bg-gray-700 rounded-t-md" style="height: 70%"></div>
+                                    <div class="flex-1 bg-brand-accent rounded-t-md" style="height: 90%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- My Wishlist -->
+                        <div>
+                            <h2 class="text-2xl font-semibold mb-6">My Wishlist</h2>
+                            <div id="dashboard-wishlist-container" class="space-y-4 max-h-96 overflow-y-auto">
+                                <!-- Wishlist items injected here -->
+                            </div>
+                        </div>
+                        
+                        <!-- My Badges -->
+                        <div>
+                            <h2 class="text-2xl font-semibold mb-6">My Badges</h2>
+                            <div id="dashboard-badges-container" class="flex flex-wrap gap-4">
+                                <!-- Badges injected here -->
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+            
+            <!-- Login Prompt -->
+            <div id="dashboard-prompt" class="text-center py-12 bg-gray-800 rounded-lg border border-gray-700">
+                <i class="fa-solid fa-user-lock text-4xl text-brand-accent mb-4"></i>
+                <p class="text-xl text-gray-300 mb-4">Please log in to see your dashboard.</p>
+                <button id="dashboard-login-button" class="bg-brand-primary text-white font-semibold px-6 py-2 rounded-lg hover:bg-brand-primary-light transition-all active:scale-95">
+                    Login / Create Account
+                </button>
+            </div>
+        </section>
+
+        <!-- Page: Tools -->
+        <section id="page-tools" class="page">
+            <h1 class="text-3xl font-bold mb-8">Simulated Crypto Tools</h1>
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Profit/Loss Calculator -->
+                <div class="bg-gray-800 p-6 sm:p-8 rounded-lg border border-gray-700">
+                    <h2 class="text-2xl font-bold mb-6 text-brand-accent">Profit/Loss Calculator</h2>
+                    <form id="profit-calculator" class="space-y-4">
+                        <div>
+                            <label for="buy-price" class="block text-sm font-medium text-gray-300 mb-2">Buy Price ($)</label>
+                            <input type="number" id="buy-price" name="buy-price" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary" placeholder="e.g., 3000">
+                        </div>
+                        <div>
+                            <label for="sell-price" class="block text-sm font-medium text-gray-300 mb-2">Sell Price ($)</label>
+                            <input type="number" id="sell-price" name="sell-price" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary" placeholder="e.g., 3500">
+                        </div>
+                        <div>
+                            <label for="amount" class="block text-sm font-medium text-gray-300 mb-2">Amount (e.g., of ETH)</label>
+                            <input type="number" id="amount" name="amount" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary" placeholder="e.g., 1.5">
+                        </div>
+                        <button type="submit" class="w-full bg-brand-primary text-white font-semibold py-3 rounded-lg text-lg hover:bg-brand-primary-light transition-all active:scale-95">Calculate</button>
+                    </form>
+                    <div id="profit-result" class="mt-6 text-center text-xl sm:text-2xl font-bold"></div>
+                </div>
+
+                <!-- Gas Fee Estimator -->
+                <div class="bg-gray-800 p-6 sm:p-8 rounded-lg border border-gray-700">
+                    <h2 class="text-2xl font-bold mb-6 text-brand-accent">Gas Fee Estimator (Sim)</h2>
+                    <form id="gas-calculator" class="space-y-4">
+                        <div>
+                            <label for="gas-price" class="block text-sm font-medium text-gray-300 mb-2">Gas Price (Gwei)</label>
+                            <input type="number" id="gas-price" name="gas-price" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary" placeholder="e.g., 20">
+                        </div>
+                        <div>
+                            <label for="gas-limit" class="block text-sm font-medium text-gray-300 mb-2">Gas Limit</label>
+                            <input type="number" id="gas-limit" name="gas-limit" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary" value="21000">
+                        </div>
+                        <div>
+                            <label for="eth-price" class="block text-sm font-medium text-gray-300 mb-2">Current ETH Price ($)</label>
+                            <input type="number" id="eth-price" name="eth-price" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary" placeholder="e.g., 3000">
+                        </div>
+                        <button type="submit" class="w-full bg-brand-primary text-white font-semibold py-3 rounded-lg text-lg hover:bg-brand-primary-light transition-all active:scale-95">Estimate</button>
+                    </form>
+                    <div id="gas-result" class="mt-6 text-center text-xl sm:text-2xl font-bold"></div>
+                </div>
+                
+                <!-- Forex Lot Size Calculator -->
+                <div class="bg-gray-800 p-6 sm:p-8 rounded-lg border border-gray-700 md:col-span-2">
+                    <h2 class="text-2xl font-bold mb-6 text-brand-accent">Forex Lot Size Calculator (Sim)</h2>
+                    <form id="lot-size-calculator" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="account-balance" class="block text-sm font-medium text-gray-300 mb-2">Account Balance ($)</label>
+                            <input type="number" id="account-balance" name="account-balance" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary" placeholder="10000">
+                        </div>
+                        <div>
+                            <label for="risk-percentage" class="block text-sm font-medium text-gray-300 mb-2">Risk (%)</label>
+                            <input type="number" id="risk-percentage" name="risk-percentage" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary" placeholder="2" value="2">
+                        </div>
+                        <div>
+                            <label for="stop-loss" class="block text-sm font-medium text-gray-300 mb-2">Stop Loss (Pips)</label>
+                            <input type="number" id="stop-loss" name="stop-loss" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary" placeholder="50">
+                        </div>
+                        <div>
+                            <label for="currency-pair" class="block text-sm font-medium text-gray-300 mb-2">Currency Pair</label>
+                            <select id="currency-pair" name="currency-pair" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                                <option value="10">EUR/USD (Pip Value: $10)</option>
+                                <option value="8.5">USD/JPY (Pip Value: $8.50)</option>
+                                <option value="12">GBP/USD (Pip Value: $12)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-brand-primary text-white font-semibold py-3 rounded-lg text-lg hover:bg-brand-primary-light transition-all active:scale-95 md:col-span-2">Calculate Lot Size</button>
+                    </form>
+                    <div id="lot-size-result" class="mt-6 text-center text-xl sm:text-2xl font-bold"></div>
+                </div>
+                
+                <!-- Coming Soon Tool -->
+                <div class="bg-gray-800/50 p-8 rounded-lg border border-dashed border-gray-600 flex flex-col items-center justify-center text-center text-gray-500 min-h-[200px]">
+                    <i class="fa-solid fa-chart-line text-4xl mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-400">Live Portfolio Tracker</h3>
+                    <p>Coming Soon</p>
+                </div>
+                <!-- Coming Soon Tool -->
+                <div class="bg-gray-800/50 p-8 rounded-lg border border-dashed border-gray-600 flex flex-col items-center justify-center text-center text-gray-500 min-h-[200px]">
+                    <i class="fa-solid fa-calculator text-4xl mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-400">Impermanent Loss Calculator</h3>
+                    <p>Coming Soon</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Page: Blog -->
+        <section id="page-blog" class="page">
+            <h1 class="text-3xl font-bold mb-8">CryptoLearn Blog</h1>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Blog Post 1 -->
+                <a href="#" class="prose block bg-gray-800 rounded-lg border border-gray-700 transform hover:scale-[1.02] hover:bg-gray-700 transition-all active:scale-95 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1639322537228-f710d846310a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="DeFi" class="w-full h-48 object-cover" onerror="this.src='https://placehold.co/600x400/3730A3/FFFFFF?text=DeFi+Explained'">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold text-white mb-2">What is DeFi? A Beginner's Guide</h2>
+                        <p class="text-gray-400">Decentralized Finance (DeFi) is a new financial system built on blockchain technology. But what does that actually mean? Let's dive in...</p>
+                        <span class="text-brand-accent font-medium">Read More &rarr;</span>
+                    </div>
+                </a>
+                <!-- Blog Post 2 -->
+                <a href="#" class="prose block bg-gray-800 rounded-lg border border-gray-700 transform hover:scale-[1.02] hover:bg-gray-700 transition-all active:scale-95 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1638592383812-013b40817b1d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="NFT" class="w-full h-48 object-cover" onerror="this.src='https://placehold.co/600x400/4F46E5/FFFFFF?text=NFT+Use+Cases'">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold text-white mb-2">Beyond the Hype: Real-World Use Cases for NFTs</h2>
+                        <p class="text-gray-400">You've heard of NFT art, but the technology goes so much further. From digital identity to real estate, here's what's next...</p>
+                        <span class="text-brand-accent font-medium">Read More &rarr;</span>
+                    </div>
+                </a>
+                <!-- Blog Post 3 -->
+                <a href="#" class="prose block bg-gray-800 rounded-lg border border-gray-700 transform hover:scale-[1.02] hover:bg-gray-700 transition-all active:scale-95 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1642104791138-2c4c3eb733c8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Security" class="w-full h-48 object-cover" onerror="this.src='https://placehold.co/600x400/BE185D/FFFFFF?text=Web3+Security'">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold text-white mb-2">Top 5 Security Tips for Your Crypto Wallet</h2>
+                        <p class="text-gray-400">"Not your keys, not your coins." It's a popular phrase for a reason. Learn how to keep your digital assets safe...</p>
+                        <span class="text-brand-accent font-medium">Read More &rarr;</span>
+                    </div>
+                </a>
+                <!-- Blog Post 4 -->
+                <a href="#" class="prose block bg-gray-800 rounded-lg border border-gray-700 transform hover:scale-[1.02] hover:bg-gray-700 transition-all active:scale-95 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1640573512391-f92846c59e66?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Trading" class="w-full h-48 object-cover" onerror="this.src='https://placehold.co/600x400/38BDF8/FFFFFF?text=Trading+Tips'">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold text-white mb-2">Understanding Market Cycles in Crypto</h2>
+                        <p class="text-gray-400">Fear and greed drive markets. Learn to identify the four phases of a crypto market cycle to improve your trading strategy...</p>
+                        <span class="text-brand-accent font-medium">Read More &rarr;</span>
+                    </div>
+                </a>
+                <!-- Blog Post 5 -->
+                <a href="#" class="prose block bg-gray-800 rounded-lg border border-gray-700 transform hover:scale-[1.02] hover:bg-gray-700 transition-all active:scale-95 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1621503213601-f3a7a8f898a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="DAO" class="w-full h-48 object-cover" onerror="this.src='https://placehold.co/600x400/4338CA/FFFFFF?text=DAOs'">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold text-white mb-2">What is a DAO and How Can I Join One?</h2>
+                        <p class="text-gray-400">Decentralized Autonomous Organizations are the future of online communities. We break down what they are and how you can get involved...</p>
+                        <span class="text-brand-accent font-medium">Read More &rarr;</span>
+                    </div>
+                </a>
+                <!-- Blog Post 6 -->
+                <a href="#" class="prose block bg-gray-800 rounded-lg border border-gray-700 transform hover:scale-[1.02] hover:bg-gray-700 transition-all active:scale-95 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1631603090989-93f9ef6f9035?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Metaverse" class="w-full h-48 object-cover" onerror="this.src='https://placehold.co/600x400/DB2777/FFFFFF?text=Metaverse'">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold text-white mb-2">The Metaverse: Fad or Future?</h2>
+                        <p class="text-gray-400">Is the metaverse just a buzzword, or is it the next evolution of the internet? We explore the tech, the players, and the potential...</p>
+                        <span class="text-brand-accent font-medium">Read More &rarr;</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Page: Community -->
+        <section id="page-community" class="page">
+            <h1 class="text-3xl font-bold mb-8">Community Forum (Simulation)</h1>
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Categories Sidebar -->
+                <aside class="w-full md:w-1/4">
+                    <div class="bg-gray-800 rounded-lg border border-gray-700 p-6 sticky top-24">
+                        <h2 class="text-xl font-semibold text-white mb-4">Categories</h2>
+                        <ul class="space-y-3">
+                            <li><a href="#" class="flex justify-between items-center text-gray-300 hover:text-brand-accent transition-colors"><span class="flex items-center"><i class="fa-solid fa-comments w-6 text-gray-500"></i>General</span><span class="text-xs bg-gray-700 px-2 py-0.5 rounded-full">42</span></a></li>
+                            <li><a href="#" class="flex justify-between items-center text-brand-accent font-semibold"><span class="flex items-center"><i class="fa-solid fa-rocket w-6 text-brand-accent"></i>Beginner</span><span class="text-xs bg-gray-700 px-2 py-0.5 rounded-full">18</span></a></li>
+                            <li><a href="#" class="flex justify-between items-center text-gray-300 hover:text-brand-accent transition-colors"><span class="flex items-center"><i class="fa-solid fa-hand-holding-dollar w-6 text-gray-500"></i>DeFi</span><span class="text-xs bg-gray-700 px-2 py-0.5 rounded-full">31</span></a></li>
+                            <li><a href="#" class="flex justify-between items-center text-gray-300 hover:text-brand-accent transition-colors"><span class="flex items-center"><i class="fa-solid fa-image w-6 text-gray-500"></i>NFTs</span><span class="text-xs bg-gray-700 px-2 py-0.5 rounded-full">22</span></a></li>
+                            <li><a href="#" class="flex justify-between items-center text-gray-300 hover:text-brand-accent transition-colors"><span class="flex items-center"><i class="fa-solid fa-chart-line w-6 text-gray-500"></i>Trading</span><span class="text-xs bg-gray-700 px-2 py-0.5 rounded-full">54</span></a></li>
+                            <li><a href="#" class="flex justify-between items-center text-gray-300 hover:text-brand-accent transition-colors"><span class="flex items-center"><i class="fa-solid fa-code w-6 text-gray-500"></i>Development</span><span class="text-xs bg-gray-700 px-2 py-0.5 rounded-full">11</span></a></li>
+                        </ul>
+                    </div>
+                </aside>
+                
+                <!-- Topic List -->
+                <div class="w-full md:w-3/4">
+                    <div class="bg-gray-800 rounded-lg border border-gray-700">
+                        <!-- Forum Header -->
+                        <div class="hidden md:grid grid-cols-6 gap-4 p-4 font-semibold text-gray-400 text-sm border-b border-gray-700">
+                            <div class="col-span-3">Topic</div>
+                            <div class="text-center">Category</div>
+                            <div class="text-center">Replies</div>
+                            <div class="text-center">Views</div>
+                        </div>
+                        
+                        <!-- Mock Forum Post 1 -->
+                        <a href="#" class="grid grid-cols-4 md:grid-cols-6 gap-4 p-4 items-center border-b border-gray-700 hover:bg-gray-700/50 transition-colors active:scale-95">
+                            <div class="col-span-4 md:col-span-3">
+                                <p class="font-semibold text-white truncate">Stuck on "Smart Contract Development" Lesson 2</p>
+                                <p class="text-sm text-gray-400">by <span class="text-brand-accent">AliceS</span>, 2 hours ago</p>
+                            </div>
+                            <div class="col-span-2 md:col-span-1 text-left md:text-center">
+                                <span class="text-xs font-medium bg-blue-900 text-blue-300 px-2 py-1 rounded-full">Development</span>
+                            </div>
+                            <div class="col-span-1 md:col-span-1 text-right md:text-center text-gray-300">5</div>
+                            <div class="col-span-1 md:col-span-1 text-right md:text-center text-gray-400 hidden md:block">32</div>
+                        </a>
+                        <!-- Mock Forum Post 2 -->
+                        <a href="#" class="grid grid-cols-4 md:grid-cols-6 gap-4 p-4 items-center border-b border-gray-700 hover:bg-gray-700/50 transition-colors active:scale-95">
+                            <div class="col-span-4 md:col-span-3">
+                                <p class="font-semibold text-white truncate">What's the best wallet for beginners?</p>
+                                <p class="text-sm text-gray-400">by <span class="text-brand-accent">NewInvestor</span>, 5 hours ago</p>
+                            </div>
+                            <div class="col-span-2 md:col-span-1 text-left md:text-center">
+                                <span class="text-xs font-medium bg-green-900 text-green-300 px-2 py-1 rounded-full">Beginner</span>
+                            </div>
+                            <div class="col-span-1 md:col-span-1 text-right md:text-center text-gray-300">12</div>
+                            <div class="col-span-1 md:col-span-1 text-right md:text-center text-gray-400 hidden md:block">104</div>
+                        </a>
+                        <!-- Mock Forum Post 3 -->
+                        <a href="#" class="grid grid-cols-4 md:grid-cols-6 gap-4 p-4 items-center border-b border-gray-700 hover:bg-gray-700/50 transition-colors active:scale-95">
+                            <div class="col-span-4 md:col-span-3">
+                                <p class="font-semibold text-white truncate">Discussion: Best Yield Farming Strategies for Q4</p>
+                                <p class="text-sm text-gray-400">by <span class="text-brand-accent">DeFi_Degan</span>, 1 day ago</p>
+                            </div>
+                            <div class="col-span-2 md:col-span-1 text-left md:text-center">
+                                <span class="text-xs font-medium bg-purple-900 text-purple-300 px-2 py-1 rounded-full">DeFi</span>
+                            </div>
+                            <div class="col-span-1 md:col-span-1 text-right md:text-center text-gray-300">38</div>
+                            <div class="col-span-1 md:col-span-1 text-right md:text-center text-gray-400 hidden md:block">1.2k</div>
+                        </a>
+                        <!-- Mock Forum Post 4 -->
+                        <a href="#" class="grid grid-cols-4 md:grid-cols-6 gap-4 p-4 items-center border-b border-gray-700 hover:bg-gray-700/50 transition-colors active:scale-95">
+                            <div class="col-span-4 md:col-span-3">
+                                <p class="font-semibold text-white truncate">Show off your NFT collection!</p>
+                                <p class="text-sm text-gray-400">by <span class="text-brand-accent">ArtLover</span>, 2 days ago</p>
+                            </div>
+                            <div class="col-span-2 md:col-span-1 text-left md:text-center">
+                                <span class="text-xs font-medium bg-pink-900 text-pink-300 px-2 py-1 rounded-full">NFTs</span>
+                            </div>
+                            <div class="col-span-1 md:col-span-1 text-right md:text-center text-gray-300">89</div>
+                            <div class="col-span-1 md:col-span-1 text-right md:text-center text-gray-400 hidden md:block">3.4k</div>
+                        </a>
+                    </div>
+                    <div class="mt-8 text-center bg-gray-800/50 p-6 rounded-lg border border-dashed border-gray-600 text-gray-400">
+                        <i class="fa-solid fa-comments text-3xl mb-3"></i>
+                        <h3 class="text-xl font-semibold text-white">Our full community forum is launching soon!</h3>
+                        <p>A place to connect with fellow learners and certified instructors.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page: About -->
+        <section id="page-about" class="page">
+            <h1 class="text-3xl font-bold mb-8">About CryptoLearn</h1>
+            <div class="bg-gray-800 p-6 sm:p-8 rounded-lg border border-gray-700 space-y-6 text-gray-300 prose max-w-none">
+                <p class="text-xl">CryptoLearn is a prototype e-commerce platform dedicated to providing high-quality, professional, and academic-style education on cryptocurrency, blockchain, and Web3 technologies.</p>
+                
+                <h2 class="text-2xl font-semibold text-white">Our Mission</h2>
+                <p>Our mission is to demystify the complex world of digital assets. We believe that education is the key to unlocking the potential of this revolutionary technology for everyone, not just a select few. We strive to provide clear, concise, and outcome-focused courses, practical tools, and expert-written analysis to empower our students with the confidence and skills they need to navigate the crypto economy safely and effectively.</p>
+                
+                <h2 class="text-2xl font-semibold text-white">Our Vision</h2>
+                <p>We envision a future where decentralized technology is accessible and understandable to all. CryptoLearn aims to be the most trusted and comprehensive resource for individuals looking to build their knowledge, whether they are a complete beginner or a seasoned developer. This platform is a frontend-only demonstration, merging minimalist design with practical e-commerce and learning management functionality, to showcase our vision for the future of online education.</p>
+                <p>All transactions, user accounts, progress, and wishlists are simulated using your browser's local storage and do not involve real money or backend servers.</p>
+
+                <h2 class="text-2xl font-semibold text-white">Our (Simulated) Team</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <img src="https://placehold.co/100x100/4F46E5/FFFFFF?text=JS" alt="Team" class="w-24 h-24 rounded-full mx-auto mb-3 border-2 border-brand-primary">
+                        <p class="font-semibold text-white">Jane Smith</p>
+                        <p class="text-sm text-brand-accent">Founder & Lead Instructor</p>
+                    </div>
+                    <div class="text-center">
+                        <img src="https://placehold.co/100x100/DB2777/FFFFFF?text=AD" alt="Team" class="w-24 h-24 rounded-full mx-auto mb-3 border-2 border-brand-secondary">
+                        <p class="font-semibold text-white">Alex Doe</p>
+                        <p class="text-sm text-brand-accent">Head of Engineering</p>
+                    </div>
+                    <div class="text-center">
+                        <img src="https://placehold.co/100x100/38BDF8/FFFFFF?text=MK" alt="Team" class="w-24 h-24 rounded-full mx-auto mb-3 border-2 border-brand-accent">
+                        <p class="font-semibold text-white">Mikey Kim</p>
+                        <p class="text-sm text-brand-accent">Lead Content Strategist</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-700 mt-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+                <!-- Column 1: Logo & Socials -->
+                <div class="col-span-2 lg:col-span-2">
+                    <a href="#" class="flex items-center space-x-2 nav-link" data-page="home">
+                        <i class="fa-solid fa-layer-group text-brand-accent text-2xl"></i>
+                        <span class="font-bold text-xl text-white">Smart E-Commerce Platform</span>
+                    </a>
+                    <p class="text-gray-400 text-sm mt-4 max-w-xs">Empowering you with the knowledge to navigate the future of finance.</p>
+                    <div class="flex space-x-5 mt-6">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fa-brands fa-twitter text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fa-brands fa-discord text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fa-brands fa-telegram text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fa-brands fa-youtube text-xl"></i></a>
+                    </div>
+                </div>
+                <!-- Column 2: Courses -->
+                <div class="col-span-1">
+                    <h3 class="text-sm font-semibold text-white tracking-wider uppercase">Courses</h3>
+                    <ul class="mt-4 space-y-3">
+                        <li><a href="#" class="nav-link-category text-gray-400 hover:text-white transition-colors" data-category="Beginner" data-page="courses">Beginner</a></li>
+                        <li><a href="#" class="nav-link-category text-gray-400 hover:text-white transition-colors" data-category="DeFi" data-page="courses">DeFi</a></li>
+                        <li><a href="#" class="nav-link-category text-gray-400 hover:text-white transition-colors" data-category="NFTs" data-page="courses">NFTs</a></li>
+                        <li><a href="#" class="nav-link-category text-gray-400 hover:text-white transition-colors" data-category="Trading" data-page="courses">Trading</a></li>
+                        <li><a href="#" class="nav-link-category text-gray-400 hover:text-white transition-colors" data-category="Advanced" data-page="courses">Advanced</a></li>
+                    </ul>
+                </div>
+                <!-- Column 3: Resources -->
+                <div class="col-span-1">
+                    <h3 class="text-sm font-semibold text-white tracking-wider uppercase">Resources</h3>
+                    <ul class="mt-4 space-y-3">
+                        <li><a href="#" class="nav-link text-gray-400 hover:text-white transition-colors" data-page="blog">Blog</a></li>
+                        <li><a href="#" class="nav-link text-gray-400 hover:text-white transition-colors" data-page="tools">Tools</a></li>
+                        <li><a href="#" class="nav-link text-gray-400 hover:text-white transition-colors" data-page="community">Community</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Glossary (Soon)</a></li>
+                    </ul>
+                </div>
+                <!-- Column 4: Company -->
+                <div class="col-span-1">
+                    <h3 class="text-sm font-semibold text-white tracking-wider uppercase">Company</h3>
+                    <ul class="mt-4 space-y-3">
+                        <li><a href="#" class="nav-link text-gray-400 hover:text-white transition-colors" data-page="about">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Careers (Sim)</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Risk Disclaimer</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-12 border-t border-gray-700 pt-8 text-center">
+                <p class="text-gray-400 text-sm">&copy; 2025 Codebytushu All rights reserved</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+
+    <!-- Sign In Modal -->
+    <div id="signin-modal" class="modal">
+        <div class="modal-content w-full max-w-md bg-gray-800 rounded-2xl shadow-xl border border-gray-700 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Sign In</h2>
+                <button class="modal-close text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <form id="user-signin-form">
+                <p class="text-gray-300 mb-4">Welcome back! (This is simulated)</p>
+                <div>
+                    <label for="signin-username" class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                    <input type="text" id="signin-username" name="username" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                </div>
+                <div class="mt-4">
+                    <label for="signin-password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input type="password" id="signin-password" name="password" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                </div>
+                <button type="submit" class="w-full mt-6 bg-brand-primary text-white font-semibold py-3 rounded-lg text-lg hover:bg-brand-primary-light transition-all active:scale-95">
+                    Sign In
+                </button>
+            </form>
+            <p class="text-center text-sm text-gray-400 mt-6">
+                Don't have an account? 
+                <button id="show-signup-button" class="font-medium text-brand-accent hover:underline">Sign Up</button>
+            </p>
+        </div>
+    </div>
+    
+    <!-- Sign Up Modal -->
+    <div id="signup-modal" class="modal">
+        <div class="modal-content w-full max-w-md bg-gray-800 rounded-2xl shadow-xl border border-gray-700 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Create Account</h2>
+                <button class="modal-close text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <form id="user-signup-form">
+                <p class="text-gray-300 mb-4">Join CryptoLearn! (This is simulated)</p>
+                <div>
+                    <label for="signup-username" class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                    <input type="text" id="signup-username" name="username" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                </div>
+                <div class="mt-4">
+                    <label for="signup-email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" id="signup-email" name="email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                </div>
+                <div class="mt-4">
+                    <label for="signup-password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input type="password" id="signup-password" name="password" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                </div>
+                <button type="submit" class="w-full mt-6 bg-brand-primary text-white font-semibold py-3 rounded-lg text-lg hover:bg-brand-primary-light transition-all active:scale-95">
+                    Create Account
+                </button>
+            </form>
+            <p class="text-center text-sm text-gray-400 mt-6">
+                Already have an account? 
+                <button id="show-signin-button" class="font-medium text-brand-accent hover:underline">Sign In</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div id="user-profile-modal" class="modal">
+        <div class="modal-content w-full max-w-md bg-gray-800 rounded-2xl shadow-xl border border-gray-700 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">My Account</h2>
+                <button class="modal-close text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <div>
+                <p class="text-lg text-gray-300 mb-2">Welcome back,</p>
+                <p class="text-3xl font-bold text-brand-accent mb-6" id="user-info-username"></p>
+                <button class="w-full bg-brand-primary text-white font-medium py-3 rounded-lg hover:bg-brand-primary-light transition-all active:scale-95 nav-link" data-page="dashboard">
+                    Go to Dashboard
+                </button>
+                <button id="user-logout-button" class="w-full mt-4 bg-red-600 text-white font-medium py-3 rounded-lg hover:bg-red-700 transition-all active:scale-95">
+                    Log Out
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connect Wallet Modal -->
+    <div id="wallet-modal" class="modal">
+        <div class="modal-content w-full max-w-md bg-gray-800 rounded-2xl shadow-xl border border-gray-700 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Connect Wallet</h2>
+                <button class="modal-close text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <div id="wallet-connect-view">
+                <p class="text-gray-300 mb-6">Select a (simulated) wallet to connect.</p>
+                <div class="space-y-4">
+                    <button class="wallet-connect-option w-full bg-gray-700 p-4 rounded-lg flex items-center justify-between hover:bg-gray-600 transition-all active:scale-95">
+                        <span class="font-semibold text-white">MetaMask</span>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" class="w-8 h-8">
+                    </button>
+                    <button class="wallet-connect-option w-full bg-gray-700 p-4 rounded-lg flex items-center justify-between hover:bg-gray-600 transition-all active:scale-95">
+                        <span class="font-semibold text-white">WalletConnect</span>
+                        <img src="https://walletconnect.com/_next/static/media/logo_mark.84dd8525.svg" alt="WalletConnect" class="w-8 h-8">
+                    </button>
+                    <button class="wallet-connect-option w-full bg-gray-700 p-4 rounded-lg flex items-center justify-between hover:bg-gray-600 transition-all active:scale-95">
+                        <span class="font-semibold text-white">Coinbase Wallet</span>
+                        <img src="https://static-00.iconduck.com/assets.00/coinbase-wallet-icon-512x512-y2ea016m.png" alt="Coinbase" class="w-8 h-8">
+                    </button>
+                </div>
+            </div>
+            <div id="wallet-connected-view" class="hidden">
+                <p class="text-gray-300 mb-2">You are connected:</p>
+                <p class="text-lg font-bold text-green-400 bg-gray-900 p-3 rounded-lg break-all" id="wallet-address"></p>
+                <button id="wallet-disconnect-button" class="w-full mt-6 bg-red-600 text-white font-medium py-3 rounded-lg hover:bg-red-700 transition-all active:scale-95">
+                    Disconnect Wallet
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Confirmation Modal -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content w-full max-w-md bg-gray-800 rounded-2xl shadow-xl border border-gray-700 p-8 text-center">
+            <div class="w-24 h-24 mx-auto mb-6">
+                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                    <path fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                          d="M16 2 C8.2 2 2 8.2 2 16 s6.2 14 14 14 14 -6.2 14 -14 S23.8 2 16 2 Z" />
+                    <path fill="none" stroke="#34D399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                          class="confirmation-circle"
+                          d="M9 16 l5 5 l9 -9" />
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-white mb-4">Thank you!</h2>
+            <p class="text-lg text-gray-300 mb-8">Your simulated order has been placed successfully.</p>
+            <button class="modal-close w-full bg-brand-primary text-white font-semibold py-3 rounded-lg text-lg hover:bg-brand-primary-light transition-all active:scale-95">
+                Close
+            </button>
+        </div>
+    </div>
+    
+    <!-- Glossary Modal -->
+    <div id="glossary-modal" class="modal">
+        <div class="modal-content w-full max-w-lg bg-gray-800 rounded-2xl shadow-xl border border-gray-700 p-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="glossary-term" class="text-2xl font-bold text-brand-accent">Glossary Term</h2>
+                <button class="modal-close text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <p id="glossary-definition" class="text-gray-300"></p>
+        </div>
+    </div>
+
+    <!-- AI Learning Path Modal -->
+    <div id="ai-path-modal" class="modal">
+        <div class="modal-content w-full max-w-lg bg-gray-800 rounded-2xl shadow-xl border border-gray-700 p-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-brand-accent">✨ Your Personalized Learning Path</h2>
+                <button class="modal-close text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <!-- Loader -->
+            <div id="ai-path-loader" class="text-center py-12 hidden">
+                <i class="fa-solid fa-spinner fa-spin text-4xl text-brand-primary"></i>
+                <p class="mt-4 text-gray-300">Generating your path...</p>
+            </div>
+            <!-- Content -->
+            <div id="ai-path-content" class="text-gray-300 space-y-4 prose max-w-none">
+                <!-- AI content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Main Application JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- DATABASE SIMULATION ---
+            
+            const db = {
+                courses: [
+                    { id: 'c1', title: 'Blockchain Basics', price: 49.99, image: 'https://images.unsplash.com/photo-1639762681057-408e589426f7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', description: 'Understand the core concepts of blockchain technology.', category: 'Beginner', difficulty: 'Easy', hours: 8, instructor: 'Prof. A. Nakamoto' },
+                    { id: 'c2', title: 'DeFi Fundamentals', price: 99.99, image: 'https://images.unsplash.com/photo-1640573599026-913d3326c06a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', description: 'Learn about decentralized finance, lending, and <span class="glossary-term" data-term="staking">staking</span>.', category: 'DeFi', difficulty: 'Medium', hours: 12, instructor: 'Dr. Jane Smith' },
+                    { id: 'c3', title: 'NFTs & The Metaverse', price: 79.99, image: 'https://images.unsplash.com/photo-1643101809754-0131808b446a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', description: 'Explore the world of non-fungible tokens and digital ownership.', category: 'NFTs', difficulty: 'Easy', hours: 6, instructor: 'Alex Doe' },
+                    { id: 'c4', title: 'Crypto Trading 101', price: 149.99, image: 'https://images.unsplash.com/photo-1640573512391-f92846c59e66?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', description: 'Learn technical analysis and risk management for <span class="glossary-term" data-term="gas-fees">gas fees</span>.', category: 'Trading', difficulty: 'Medium', hours: 20, instructor: 'Mikey Kim' },
+                    { id: 'c5', title: 'Smart Contract Development', price: 199.99, image: 'https://images.unsplash.com/photo-1639922557343-25ab9a3e1c64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', description: 'An introduction to Solidity and building smart contracts.', category: 'Advanced', difficulty: 'Hard', hours: 40, instructor: 'Dr. Jane Smith' },
+                    { id: 'c6', title: 'Web3 Security', price: 129.99, image: 'https://images.unsplash.com/photo-1557053913-b541d59837a7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', description: 'Understand common vulnerabilities and best practices for securing dApps.', category: 'Advanced', difficulty: 'Hard', hours: 15, instructor: 'Prof. A. Nakamoto' },
+                ],
+                courseContent: {
+                    'c1': [ { id: 'l1', title: 'What is a Block?' }, { id: 'l2', title: 'How Does the Chain Work?' }, { id: 'l3', title: 'Consensus Mechanisms (PoW vs. PoS)' } ],
+                    'c2': [ { id: 'l1', title: 'Introduction to DeFi' }, { id: 'l2', title: 'Lending & Borrowing Protocols' }, { id: 'l3', title: 'Understanding Staking & Yield Farming' } ],
+                    'c3': [ { id: 'l1', title: 'What is an NFT?' }, { id: 'l2', title: 'Minting & Marketplaces' } ],
+                    'c4': [ { id: 'l1', title: 'Reading Candlestick Charts' }, { id: 'l2', title: 'Support & Resistance' }, { id: 'l3', title: 'Risk Management' } ],
+                    'c5': [ { id: 'l1', title: 'Intro to Solidity' }, { id: 'l2', title: 'Your First Contract' }, { id: 'l3', title: 'Testing & Deployment' } ],
+                    'c6': [ { id: 'l1', title: 'Common Attack Vectors' }, { id: 'l2', title: 'Secure Coding Practices' } ], // Fixed syntax error here
+                },
+                glossary: {
+                    'staking': 'Staking involves locking up cryptocurrencies to support the operation of a blockchain network. In return for staking their coins, participants receive rewards.',
+                    'gas-fees': 'Gas fees are payments made by users to compensate for the computing energy required to process and validate transactions on a blockchain, like Ethereum.',
+                }
+            };
+            
+            // --- STATE MANAGEMENT ---
+            
+            let cart = {};
+            let user = null; // null when logged out, object when logged in
+            let wallet = { connected: false, address: null };
+
+            // --- CONSTANTS & SELECTORS ---
+            
+            const elements = {
+                // Pages
+                pages: document.querySelectorAll('.page'),
+                homePage: document.getElementById('page-home'),
+                coursesPage: document.getElementById('page-courses'),
+                cartPage: document.getElementById('page-cart'),
+                checkoutPage: document.getElementById('page-checkout'),
+                dashboardPage: document.getElementById('page-dashboard'),
+                toolsPage: document.getElementById('page-tools'),
+                blogPage: document.getElementById('page-blog'),
+                communityPage: document.getElementById('page-community'),
+                
+                // Nav
+                navLinks: document.querySelectorAll('.nav-link'),
+                navLinkCategories: document.querySelectorAll('.nav-link-category'),
+                mobileMenuButton: document.getElementById('mobile-menu-button'),
+                mobileMenu: document.getElementById('mobile-menu'),
+                
+                // Carousels
+                featuredCoursesSwiper: document.getElementById('featured-courses-swiper'),
+                featuredCoursesContainer: document.getElementById('featured-courses-container'),
+                testimonialSwiper: document.getElementById('testimonial-swiper'),
+                
+                // Cart
+                cartButton: document.getElementById('cart-button'),
+                cartCountBadge: document.getElementById('cart-count-badge'),
+                courseListContainer: document.getElementById('course-list'),
+                courseFilterContainer: document.getElementById('course-filter-buttons'),
+                cartItemsContainer: document.getElementById('cart-items-container'),
+                cartEmptyMessage: document.getElementById('cart-empty-message'),
+                cartSummary: document.getElementById('cart-summary'),
+                cartSubtotal: document.getElementById('cart-subtotal'),
+                cartTotal: document.getElementById('cart-total'),
+                checkoutButton: document.getElementById('checkout-button'),
+                
+                // Checkout
+                checkoutForm: document.getElementById('checkout-form'),
+                placeOrderButton: document.getElementById('place-order-button'),
+                checkoutSummaryItems: document.getElementById('checkout-summary-items'),
+                checkoutSubtotal: document.getElementById('checkout-subtotal'),
+                checkoutTotal: document.getElementById('checkout-total'),
+                confirmationModal: document.getElementById('confirmation-modal'),
+                
+                // User & Auth
+                userProfileButton: document.getElementById('user-profile-button'),
+                userProfileModal: document.getElementById('user-profile-modal'),
+                userInfoUsername: document.getElementById('user-info-username'),
+                userLogoutButton: document.getElementById('user-logout-button'),
+                signinModal: document.getElementById('signin-modal'),
+                userSigninForm: document.getElementById('user-signin-form'),
+                signupModal: document.getElementById('signup-modal'),
+                userSignupForm: document.getElementById('user-signup-form'),
+                showSignupButton: document.querySelector('#show-signup-button'),
+                showSigninButton: document.querySelector('#show-signin-button'),
+
+                // Dashboard
+                dashboardWelcome: document.getElementById('dashboard-welcome'),
+                dashboardContent: document.getElementById('dashboard-content'),
+                dashboardPrompt: document.getElementById('dashboard-prompt'),
+                dashboardLoginButton: document.getElementById('dashboard-login-button'),
+                dashboardCoursesContainer: document.getElementById('dashboard-courses-container'),
+                dashboardBadgesContainer: document.getElementById('dashboard-badges-container'),
+                dashboardWishlistContainer: document.getElementById('dashboard-wishlist-container'),
+                statCoursesCompleted: document.getElementById('stat-courses-completed'),
+                statBadgesEarned: document.getElementById('stat-badges-earned'),
+
+                // Modals
+                modalCloseButtons: document.querySelectorAll('.modal-close'),
+                glossaryModal: document.getElementById('glossary-modal'),
+                glossaryTerm: document.getElementById('glossary-term'),
+                glossaryDefinition: document.getElementById('glossary-definition'),
+
+                // AI Path
+                generatePathButton: document.getElementById('generate-path-button'),
+                learningGoalInput: document.getElementById('learning-goal'),
+                aiPathModal: document.getElementById('ai-path-modal'),
+                aiPathContent: document.getElementById('ai-path-content'),
+                aiPathLoader: document.getElementById('ai-path-loader'),
+                
+                // Wallet
+                walletConnectButton: document.getElementById('wallet-connect-button'),
+                walletConnectButtonMobile: document.getElementById('wallet-connect-button-mobile'),
+                walletModal: document.getElementById('wallet-modal'),
+                walletConnectView: document.getElementById('wallet-connect-view'),
+                walletConnectedView: document.getElementById('wallet-connected-view'),
+                walletConnectOptions: document.querySelectorAll('.wallet-connect-option'),
+                walletAddress: document.getElementById('wallet-address'),
+                walletDisconnectButton: document.getElementById('wallet-disconnect-button'),
+                
+                // Tools Page
+                profitCalculator: document.getElementById('profit-calculator'),
+                profitResult: document.getElementById('profit-result'),
+                gasCalculator: document.getElementById('gas-calculator'),
+                gasResult: document.getElementById('gas-result'),
+                lotSizeCalculator: document.getElementById('lot-size-calculator'),
+                lotSizeResult: document.getElementById('lot-size-result'),
+                
+                // Toast
+                toastContainer: document.getElementById('toast-container'),
+            };
+
+            // --- INITIALIZATION ---
+            
+            function init() {
+                console.log('CryptoLearn App Initializing...');
+                loadUser();
+                loadCart();
+                loadWallet();
+                
+                renderCourseFilters();
+                renderCourseList('all');
+                renderFeaturedCourses();
+                renderCart();
+                updateCartIcon();
+                updateDynamicButtons();
+                renderDashboard();
+                updateWalletUI();
+                
+                setupEventListeners();
+                initSwipers();
+                
+                showPage('home');
+                console.log('App Ready.');
+            }
+            
+            /**
+             * Initializes Swiper.js carousels
+             */
+            function initSwipers() {
+                new Swiper(elements.featuredCoursesSwiper, {
+                    slidesPerView: 1,
+                    spaceBetween: 30,
+                    loop: true,
+                    pagination: {
+                        el: '.swiper-pagination',
+                        clickable: true,
+                    },
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev',
+                    },
+                    breakpoints: {
+                        640: {
+                            slidesPerView: 2,
+                        },
+                        1024: {
+                            slidesPerView: 3,
+                        },
+                    }
+                });
+                
+                new Swiper(elements.testimonialSwiper, {
+                    slidesPerView: 1,
+                    spaceBetween: 30,
+                    loop: true,
+                    autoplay: {
+                        delay: 5000,
+                    },
+                    pagination: {
+                        el: '.swiper-pagination',
+                        clickable: true,
+                    },
+                    breakpoints: {
+                        768: {
+                            slidesPerView: 2,
+                        },
+                        1024: {
+                            slidesPerView: 3,
+                        },
+                    }
+                });
+            }
+
+            // --- LOCALSTORAGE HELPERS ---
+
+            function saveUser() {
+                if (user) {
+                    localStorage.setItem('cryptoUser', JSON.stringify(user));
+                } else {
+                    localStorage.removeItem('cryptoUser');
+                }
+                console.log('User saved/removed:', user);
+            }
+            
+            function loadUser() {
+                const storedUser = localStorage.getItem('cryptoUser');
+                if (storedUser) {
+                    user = JSON.parse(storedUser);
+                    console.log('User loaded:', user);
+                } else {
+                    user = null;
+                    console.log('No user found in localStorage.');
+                }
+                updateUserUI();
+            }
+
+            function saveCart() {
+                localStorage.setItem('cryptoCart', JSON.stringify(cart));
+                console.log('Cart saved:', cart);
+            }
+
+            function loadCart() {
+                const storedCart = localStorage.getItem('cryptoCart');
+                if (storedCart) {
+                    cart = JSON.parse(storedCart);
+                    console.log('Cart loaded:', cart);
+                }
+            }
+            
+            function saveWallet() {
+                localStorage.setItem('cryptoWallet', JSON.stringify(wallet));
+                console.log('Wallet saved:', wallet);
+            }
+            
+            function loadWallet() {
+                const storedWallet = localStorage.getItem('cryptoWallet');
+                if (storedWallet) {
+                    wallet = JSON.parse(storedWallet);
+                    console.log('Wallet loaded:', wallet);
+                }
+            }
+            
+            // --- NOTIFICATIONS ---
+
+            /**
+             * Displays a toast notification
+             * @param {string} message - The text to display.
+             * @param {string} type - 'success', 'error', or 'info'.
+             */
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i> ${message}`;
+                
+                elements.toastContainer.appendChild(toast);
+                
+                // Auto-hide
+                setTimeout(() => {
+                    toast.classList.add('hiding');
+                    toast.addEventListener('animationend', () => {
+                        toast.remove();
+                    });
+                }, 3000);
+            }
+            
+            // --- NAVIGATION ---
+
+            function showPage(pageId, category = null) {
+                elements.pages.forEach(page => page.classList.remove('active'));
+                const newPage = document.getElementById(`page-${pageId}`);
+                if (newPage) {
+                    newPage.classList.add('active');
+                } else {
+                    elements.homePage.classList.add('active');
+                    pageId = 'home';
+                }
+                
+                elements.navLinks.forEach(link => {
+                    const linkPage = link.dataset.page;
+                    link.classList.toggle('text-white', linkPage === pageId);
+                    link.classList.toggle('font-semibold', linkPage === pageId);
+                    link.classList.toggle('text-gray-300', linkPage !== pageId);
+                });
+                
+                elements.mobileMenu.classList.add('hidden');
+                window.scrollTo(0, 0);
+                
+                // If navigating to courses with a category
+                if (pageId === 'courses' && category) {
+                    renderCourseList(category);
+                    elements.courseFilterContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.category === category);
+                    });
+                }
+            }
+            
+            function toggleMobileMenu() {
+                elements.mobileMenu.classList.toggle('hidden');
+            }
+            
+            // --- MODAL & UI HELPERS ---
+            
+            function openModal(modalId) {
+                closeModal(); // Close any open modals first
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('active');
+                }
+            }
+            
+            function closeModal() {
+                document.querySelectorAll('.modal.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+
+            // --- COURSE & GLOSSARY RENDERING ---
+            
+            function renderCourseFilters() {
+                const categories = [...new Set(db.courses.map(c => c.category))];
+                categories.forEach(category => {
+                    elements.courseFilterContainer.innerHTML += `
+                        <button class="filter-btn bg-gray-700 text-gray-200 font-medium px-4 py-2 rounded-full hover:bg-gray-600 transition-all active:scale-95" data-category="${category}">${category}</button>
+                    `;
+                });
+            }
+
+            function renderCourseList(filterCategory = 'all') {
+                elements.courseListContainer.innerHTML = '';
+                
+                const coursesToRender = filterCategory === 'all'
+                    ? db.courses
+                    : db.courses.filter(c => c.category === filterCategory);
+                
+                if (coursesToRender.length === 0) {
+                    elements.courseListContainer.innerHTML = `<p class="text-gray-400 col-span-full text-center">No courses found in this category.</p>`;
+                    return;
+                }
+                    
+                coursesToRender.forEach(course => {
+                    const isInCart = cart[course.id];
+                    const isInWishlist = user ? user.wishlist.includes(course.id) : false;
+                    
+                    elements.courseListContainer.innerHTML += `
+                        <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg transform hover:scale-[1.02] transition-transform duration-300 flex flex-col">
+                            <div class="relative">
+                                <img src="${course.image}" alt="${course.title}" class="w-full h-48 object-cover" onerror="this.src='https://placehold.co/600x400/4F46E5/FFFFFF?text=${course.title.replace(' ', '+')}'">
+                                <button class="wishlist-btn absolute top-3 right-3 ${isInWishlist ? 'text-red-500' : 'text-white/70'} bg-black/30 backdrop-blur-sm w-8 h-8 rounded-full hover:text-red-400 transition-colors text-lg active:scale-95 flex items-center justify-center" data-id="${course.id}">
+                                    <i class="fa-solid ${isInWishlist ? 'fa-heart' : 'fa-heart-o'}"></i>
+                                </button>
+                            </div>
+                            <div class="p-6 flex flex-col flex-grow">
+                                <div class="flex justify-between items-center mb-2 text-sm text-gray-400">
+                                    <span>${course.difficulty}</span>
+                                    <span><i class="fa-solid fa-clock mr-1"></i> ${course.hours} Hours</span>
+                                </div>
+                                <h2 class="text-xl font-bold text-white mb-2">${course.title}</h2>
+                                <p class="text-gray-400 mb-4 flex-grow">${course.description}</p>
+                                <p class="text-sm text-gray-500 mb-4">By ${course.instructor}</p>
+                                <div class="flex justify-between items-center mt-auto">
+                                    <span class="text-2xl font-bold text-brand-accent">$${course.price}</span>
+                                    <button 
+                                        class="add-to-cart-btn ${isInCart ? 'bg-green-600' : 'bg-brand-primary'} text-white font-semibold px-4 py-2 rounded-lg hover:opacity-80 transition-all active:scale-95"
+                                        data-id="${course.id}" 
+                                        data-title="${course.title}" 
+                                        data-price="${course.price}"
+                                        ${isInCart ? 'disabled' : ''}
+                                    >
+                                        <i class="fa-solid ${isInCart ? 'fa-check' : 'fa-cart-plus'}"></i>
+                                        ${isInCart ? ' In Cart' : ' Add to Cart'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                setupGlossaryListeners();
+            }
+            
+            function renderFeaturedCourses() {
+                const featured = db.courses.filter(c => ['c2', 'c4', 'c5'].includes(c.id));
+                elements.featuredCoursesContainer.innerHTML = '';
+                featured.forEach(course => {
+                    // This uses a slightly different card style for the carousel
+                    elements.featuredCoursesContainer.innerHTML += `
+                        <div class="swiper-slide h-full">
+                            <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg h-full flex flex-col">
+                                <img src="${course.image}" alt="${course.title}" class="w-full h-48 object-cover" onerror="this.src='https://placehold.co/600x400/4F46E5/FFFFFF?text=${course.title.replace(' ', '+')}'">
+                                <div class="p-6 flex flex-col flex-grow">
+                                    <h2 class="text-xl font-bold text-white mb-2">${course.title}</h2>
+                                    <p class="text-gray-400 mb-4 flex-grow">${course.description.split('<span')[0]}</p>
+                                    <div class="flex justify-between items-center mt-auto">
+                                        <span class="text-2xl font-bold text-brand-accent">$${course.price}</span>
+                                        <button class="nav-link bg-brand-primary/20 text-brand-accent font-semibold px-4 py-2 rounded-lg hover:bg-brand-primary/40 transition-all active:scale-95" data-page="courses">
+                                            View Course
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            function showGlossary(e) {
+                const termKey = e.target.dataset.term;
+                const definition = db.glossary[termKey];
+                
+                if (definition) {
+                    elements.glossaryTerm.textContent = e.target.textContent;
+                    elements.glossaryDefinition.textContent = definition;
+                    openModal('glossary-modal');
+                }
+            }
+
+            // --- USER MANAGEMENT ---
+            
+            function handleUserSignIn(e) {
+                e.preventDefault();
+                const username = elements.userSigninForm.querySelector('#signin-username').value.trim();
+                // In a real app, you'd check password. Here, just username is fine for sim.
+                if (username) {
+                    user = {
+                        username: username,
+                        progress: {}, // In real app, you'd fetch this
+                        wishlist: []  // In real app, you'd fetch this
+                    };
+                    // Let's check if this user already exists in a mock DB (localStorage)
+                    const mockUserDB = JSON.parse(localStorage.getItem('cryptoUserDB') || '{}');
+                    if (mockUserDB[username]) {
+                        // User exists, load their data
+                        user = mockUserDB[username];
+                    } else {
+                        // User doesn't exist, treat as new, but for sign-in, we should probably error
+                        // For this sim, we'll just log them in as a new user if they don't exist
+                        // Or... let's show an error.
+                        showToast('Invalid username or password (simulated)', 'error');
+                        return;
+                    }
+                    
+                    saveUser();
+                    updateUserUI();
+                    renderDashboard();
+                    updateDynamicButtons();
+                    closeModal();
+                    showToast(`Welcome back, ${username}!`, 'success');
+                }
+            }
+            
+            function handleUserSignUp(e) {
+                e.preventDefault();
+                const username = elements.userSignupForm.querySelector('#signup-username').value.trim();
+                if (username) {
+                    // Check if user already exists
+                    const mockUserDB = JSON.parse(localStorage.getItem('cryptoUserDB') || '{}');
+                    if (mockUserDB[username]) {
+                        showToast('Username already exists (simulated)', 'error');
+                        return;
+                    }
+                    
+                    // Create new user
+                    user = {
+                        username: username,
+                        progress: {},
+                        wishlist: []
+                    };
+                    
+                    // Save to mock DB
+                    mockUserDB[username] = user;
+                    localStorage.setItem('cryptoUserDB', JSON.stringify(mockUserDB));
+                    
+                    // Save as current user
+                    saveUser();
+                    updateUserUI();
+                    renderDashboard();
+                    updateDynamicButtons();
+                    closeModal();
+                    showToast(`Account created! Welcome, ${username}!`, 'success');
+                }
+            }
+
+            function handleUserLogout() {
+                const username = user.username;
+                // Save progress to mock DB before logging out
+                const mockUserDB = JSON.parse(localStorage.getItem('cryptoUserDB') || '{}');
+                if (mockUserDB[username]) {
+                    mockUserDB[username] = user; // Save current state
+                    localStorage.setItem('cryptoUserDB', JSON.stringify(mockUserDB));
+                }
+                
+                user = null;
+                saveUser();
+                updateUserUI();
+                renderDashboard();
+                updateDynamicButtons();
+                closeModal();
+                showToast('You have been logged out.', 'info');
+            }
+            
+            function handleOpenAuthModal() {
+                if (user) {
+                    elements.userInfoUsername.textContent = user.username;
+                    openModal('user-profile-modal');
+                } else {
+                    openModal('signin-modal');
+                }
+            }
+
+            function updateUserUI() {
+                if (user) {
+                    // Logged-in state
+                    elements.dashboardWelcome.textContent = `Welcome, ${user.username}!`;
+                    elements.dashboardContent.classList.remove('hidden');
+                    elements.dashboardPrompt.classList.add('hidden');
+                } else {
+                    // Logged-out state
+                    elements.dashboardWelcome.textContent = 'Welcome!';
+                    elements.dashboardContent.classList.add('hidden');
+                    elements.dashboardPrompt.classList.remove('hidden');
+                }
+            }
+            
+            // --- WALLET MANAGEMENT ---
+            
+            function updateWalletUI() {
+                if (wallet.connected) {
+                    const shortAddress = `${wallet.address.substring(0, 6)}...${wallet.address.substring(wallet.address.length - 4)}`;
+                    elements.walletConnectButton.textContent = shortAddress;
+                    elements.walletConnectButtonMobile.textContent = shortAddress;
+                    elements.walletConnectView.classList.add('hidden');
+                    elements.walletConnectedView.classList.remove('hidden');
+                    elements.walletAddress.textContent = wallet.address;
+                } else {
+                    elements.walletConnectButton.textContent = 'Connect Wallet';
+                    elements.walletConnectButtonMobile.textContent = 'Connect Wallet';
+                    elements.walletConnectView.classList.remove('hidden');
+                    elements.walletConnectedView.classList.add('hidden');
+                }
+            }
+            
+            function handleSimulateConnection() {
+                // Generate a random mock ETH address
+                const mockAddress = '0x' + [...Array(40)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+                wallet.connected = true;
+                wallet.address = mockAddress;
+                saveWallet();
+                updateWalletUI();
+                showToast('Wallet Connected (Simulated)', 'success');
+            }
+            
+            function handleDisconnectWallet() {
+                wallet.connected = false;
+                wallet.address = null;
+                saveWallet();
+                updateWalletUI();
+                closeModal();
+                showToast('Wallet Disconnected', 'info');
+            }
+            
+            // --- DASHBOARD & PROGRESS ---
+            
+            function renderDashboard() {
+                if (!user) {
+                    updateUserUI();
+                    return;
+                }
+                
+                renderDashboardCourses();
+                renderDashboardWishlist();
+                renderDashboardBadges();
+
+                document.querySelectorAll('.progress-checkbox').forEach(box => {
+                    box.addEventListener('change', handleProgressUpdate);
+                });
+            }
+            
+            function renderDashboardCourses() {
+                elements.dashboardCoursesContainer.innerHTML = '';
+                let hasCourses = false;
+                
+                db.courses.forEach(course => {
+                    const allLessons = db.courseContent[course.id] || [];
+                    const completedLessons = user.progress[course.id] || [];
+                    
+                    // Only show courses they have progress in
+                    if (completedLessons.length > 0) {
+                        hasCourses = true;
+                        const progressPercent = allLessons.length > 0 ? (completedLessons.length / allLessons.length) * 100 : 0;
+
+                        let lessonsHtml = allLessons.map(lesson => {
+                            const isComplete = completedLessons.includes(lesson.id);
+                            return `
+                                <li class="flex items-center justify-between py-2">
+                                    <label for="lesson-${course.id}-${lesson.id}" class="flex items-center ${isComplete ? 'text-gray-500 line-through' : 'text-gray-300'} cursor-pointer">
+                                        <input 
+                                            id="lesson-${course.id}-${lesson.id}"
+                                            type="checkbox" 
+                                            class="progress-checkbox h-4 w-4 rounded bg-gray-700 border border-gray-600 text-brand-primary focus:ring-brand-primary mr-3"
+                                            data-course-id="${course.id}"
+                                            data-lesson-id="${lesson.id}"
+                                            ${isComplete ? 'checked' : ''}
+                                        >
+                                        ${lesson.title}
+                                    </label>
+                                </li>
+                            `;
+                        }).join('');
+                        
+                        elements.dashboardCoursesContainer.innerHTML += `
+                            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                                <h3 class="text-xl font-semibold text-white mb-4">${course.title}</h3>
+                                <p class="text-sm text-gray-400 mb-1">${completedLessons.length} / ${allLessons.length} Lessons Completed</p>
+                                <div class="progress-bar-container mb-4">
+                                    <div class="progress-bar-fill" style="width: ${progressPercent}%;"></div>
+                                </div>
+                                <ul class="space-y-1">
+                                    ${lessonsHtml}
+                                </ul>
+                            </div>
+                        `;
+                    }
+                });
+                
+                if (!hasCourses) {
+                    elements.dashboardCoursesContainer.innerHTML = `<p class="text-gray-400 italic">You haven't started any courses yet. Purchase a course and complete a lesson to see it here.</p>`;
+                }
+            }
+            
+            function renderDashboardWishlist() {
+                elements.dashboardWishlistContainer.innerHTML = '';
+                if (user.wishlist.length === 0) {
+                    elements.dashboardWishlistContainer.innerHTML = `<p class="text-gray-400 italic text-sm">Your wishlist is empty. Click the <i class="fa-solid fa-heart-o text-red-400"></i> on a course to add it!</p>`;
+                    return;
+                }
+                
+                user.wishlist.forEach(courseId => {
+                    const course = db.courses.find(c => c.id === courseId);
+                    if (course) {
+                        elements.dashboardWishlistContainer.innerHTML += `
+                            <div class="bg-gray-900 rounded-lg border border-gray-700 flex items-center p-3 transform hover:scale-[1.02] transition-transform duration-300">
+                                <img src="${course.image}" alt="${course.title}" class="w-12 h-12 object-cover rounded-md mr-3" onerror="this.src='https://placehold.co/80x80/4F46E5/FFFFFF?text=...'">
+                                <div class="flex-grow">
+                                    <p class="font-semibold text-white text-sm">${course.title}</p>
+                                    <p class="text-brand-accent font-bold text-sm">$${course.price}</p>
+                                </div>
+                                <button class="wishlist-btn text-red-500 hover:text-red-400 transition-colors text-lg active:scale-95" data-id="${course.id}">
+                                    <i class="fa-solid fa-heart"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                });
+                
+                elements.dashboardWishlistContainer.querySelectorAll('.wishlist-btn').forEach(btn => {
+                   btn.addEventListener('click', handleWishlistToggle); 
+                });
+            }
+
+            function renderDashboardBadges() {
+                elements.dashboardBadgesContainer.innerHTML = '';
+                let completedCourses = 0;
+                let startedBasics = false;
+                
+                db.courses.forEach(course => {
+                    const allLessons = db.courseContent[course.id] || [];
+                    const completedLessons = user.progress[course.id] || [];
+                    if (allLessons.length > 0 && completedLessons.length === allLessons.length) {
+                        completedCourses++;
+                    }
+                    if (course.id === 'c1' && completedLessons.length > 0) {
+                        startedBasics = true;
+                    }
+                });
+                
+                elements.statCoursesCompleted.textContent = completedCourses;
+
+                if (completedCourses > 0) {
+                    elements.dashboardBadgesContainer.innerHTML += `
+                        <div class="bg-gray-900 p-3 rounded-lg border border-yellow-400 text-center shadow-lg">
+                            <i class="fa-solid fa-medal text-3xl text-yellow-400 mb-2"></i>
+                            <p class="font-semibold text-white text-sm">Course Completer</p>
+                        </div>
+                    `;
+                }
+                if (startedBasics) {
+                    elements.dashboardBadgesContainer.innerHTML += `
+                        <div class="bg-gray-900 p-3 rounded-lg border border-brand-accent text-center shadow-lg">
+                            <i class="fa-solid fa-rocket text-3xl text-brand-accent mb-2"></i>
+                            <p class="font-semibold text-white text-sm">Blockchain Beginner</p>
+                        </div>
+                    `;
+                }
+                
+                elements.statBadgesEarned.textContent = elements.dashboardBadgesContainer.children.length;
+                
+                if (elements.dashboardBadgesContainer.innerHTML === '') {
+                     elements.dashboardBadgesContainer.innerHTML = `
+                        <p class="text-gray-400 italic text-sm">Complete lessons to earn badges!</p>
+                    `;
+                }
+            }
+            
+            function handleProgressUpdate(e) {
+                if (!user) {
+                    console.warn('Please log in to save progress.');
+                    e.target.checked = !e.target.checked;
+                    openModal('signin-modal');
+                    return;
+                }
+                
+                const { courseId, lessonId } = e.target.dataset;
+                const isComplete = e.target.checked;
+                
+                if (!user.progress[courseId]) user.progress[courseId] = [];
+                
+                if (isComplete) {
+                    if (!user.progress[courseId].includes(lessonId)) {
+                        user.progress[courseId].push(lessonId);
+                    }
+                } else {
+                    user.progress[courseId] = user.progress[courseId].filter(id => id !== lessonId);
+                }
+                
+                saveUser();
+                renderDashboard(); // Re-render all dashboard components
+                showToast('Progress Saved!', 'info');
+            }
+
+            // --- CART & WISHLIST ---
+
+            function handleAddToCart(e) {
+                const button = e.target.closest('.add-to-cart-btn');
+                if (!button) return;
+                
+                const { id, title, price } = button.dataset;
+                
+                if (cart[id]) {
+                    console.log('Item already in cart.');
+                    return;
+                } else {
+                    cart[id] = { id, title, price: parseFloat(price), quantity: 1 };
+                }
+                
+                saveCart();
+                updateCartIcon();
+                renderCart();
+                updateDynamicButtons();
+                
+                elements.cartButton.classList.add('animate-pulseCart');
+                setTimeout(() => elements.cartButton.classList.remove('animate-pulseCart'), 500);
+                showToast(`${title} added to cart!`, 'success');
+            }
+            
+            function handleWishlistToggle(e) {
+                const button = e.target.closest('.wishlist-btn');
+                if (!button) return;
+                
+                if (!user) {
+                    console.warn('User not logged in. Prompting modal.');
+                    openModal('signin-modal');
+                    return;
+                }
+                
+                const { id } = button.dataset;
+                const index = user.wishlist.indexOf(id);
+                
+                if (index > -1) {
+                    user.wishlist.splice(index, 1);
+                    showToast('Removed from wishlist', 'info');
+                } else {
+                    user.wishlist.push(id);
+                    showToast('Added to wishlist!', 'success');
+                }
+                
+                saveUser();
+                updateDynamicButtons();
+                renderDashboardWishlist();
+            }
+            
+            function updateCartQuantity(courseId, change) {
+                if (cart[courseId]) {
+                    cart[courseId].quantity += change;
+                    if (cart[courseId].quantity <= 0) {
+                        delete cart[courseId];
+                    }
+                    saveCart();
+                    renderCart();
+                    updateCartIcon();
+                    updateDynamicButtons();
+                }
+            }
+
+            function renderCart() {
+                const cartItems = Object.values(cart);
+                
+                if (cartItems.length === 0) {
+                    elements.cartItemsContainer.innerHTML = '';
+                    elements.cartEmptyMessage.classList.remove('hidden');
+                    elements.cartSummary.classList.add('hidden');
+                    return;
+                }
+                
+                elements.cartEmptyMessage.classList.add('hidden');
+                elements.cartSummary.classList.remove('hidden');
+                
+                let subtotal = 0;
+                elements.cartItemsContainer.innerHTML = `
+                    <div class="hidden md:grid grid-cols-6 gap-4 p-4 font-semibold text-gray-400 text-sm border-b border-gray-700">
+                        <div class="col-span-3">Product</div>
+                        <div class="text-center">Price</div>
+                        <div class="text-center">Quantity</div>
+                        <div class="text-right">Total</div>
+                    </div>
+                `;
+                
+                cartItems.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    
+                    elements.cartItemsContainer.innerHTML += `
+                        <div class="grid grid-cols-4 md:grid-cols-6 gap-4 p-4 items-center border-b border-gray-700">
+                            <!-- Mobile-only Labels -->
+                            <div class="md:hidden col-span-1 text-sm text-gray-400">Product</div>
+                            <div class="col-span-3 md:col-span-3 flex items-center space-x-4">
+                                <img src="${db.courses.find(c => c.id === item.id)?.image || 'https://placehold.co/80x80'}" alt="${item.title}" class="w-16 h-16 object-cover rounded-lg hidden sm:block" onerror="this.src='https://placehold.co/80x80/4F46E5/FFFFFF?text=...'">
+                                <div>
+                                    <p class="font-semibold text-white">${item.title}</p>
+                                    <button class="cart-remove-btn text-red-500 hover:text-red-400 text-sm transition-colors active:scale-95" data-id="${item.id}">Remove</button>
+                                </div>
+                            </div>
+                            
+                            <div class="md:hidden col-span-1 text-sm text-gray-400">Price</div>
+                            <div class="col-span-3 md:col-span-1 text-right md:text-center text-gray-300">
+                                $${item.price.toFixed(2)}
+                            </div>
+                            
+                            <div class="md:hidden col-span-1 text-sm text-gray-400">Quantity</div>
+                            <div class="col-span-3 md:col-span-1 text-right md:text-center">
+                                <div class="flex items-center justify-end md:justify-center space-x-2">
+                                    <button class="cart-quantity-btn bg-gray-700 w-6 h-6 rounded-full hover:bg-gray-600 transition-all active:scale-95" data-id="${item.id}" data-change="-1">-</button>
+                                    <span>${item.quantity}</span>
+                                    <button class="cart-quantity-btn bg-gray-700 w-6 h-6 rounded-full hover:bg-gray-600 transition-all active:scale-95" data-id="${item.id}" data-change="1">+</button>
+                                </div>
+                            </div>
+                            
+                            <div class="md:hidden col-span-1 text-sm text-gray-400">Total</div>
+                            <div class="col-span-3 md:col-span-1 text-right font-semibold text-white">
+                                $${itemTotal.toFixed(2)}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                const total = subtotal;
+                elements.cartSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+                elements.cartTotal.textContent = `$${total.toFixed(2)}`;
+            }
+            
+            function updateCartIcon() {
+                const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+                elements.cartCountBadge.textContent = totalItems;
+                elements.cartCountBadge.classList.toggle('hidden', totalItems === 0);
+            }
+            
+            function updateDynamicButtons() {
+                // Update Cart Buttons
+                document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                    const id = button.dataset.id;
+                    if (cart[id]) {
+                        button.innerHTML = '<i class="fa-solid fa-check"></i> In Cart';
+                        button.classList.add('bg-green-600');
+                        button.classList.remove('bg-brand-primary');
+                        button.disabled = true;
+                    } else {
+                        button.innerHTML = '<i class="fa-solid fa-cart-plus"></i> Add to Cart';
+                        button.classList.add('bg-brand-primary');
+                        button.classList.remove('bg-green-600');
+                        button.disabled = false;
+                    }
+                });
+                
+                // Update Wishlist Buttons
+                document.querySelectorAll('.wishlist-btn').forEach(button => {
+                    const id = button.dataset.id;
+                    const isInWishlist = user ? user.wishlist.includes(id) : false;
+                    button.classList.toggle('text-red-500', isInWishlist);
+                    button.classList.toggle(isInWishlist ? 'text-white/70' : 'text-gray-500', !isInWishlist); // Handle different default colors
+                    button.innerHTML = `<i class="fa-solid ${isInWishlist ? 'fa-heart' : 'fa-heart-o'}"></i>`;
+                });
+            }
+
+            // --- CHECKOUT PROCESS ---
+            
+            function handleCheckout() {
+                if (!user) {
+                    showToast('Please sign in to check out', 'error');
+                    openModal('signin-modal');
+                    return;
+                }
+                const cartItems = Object.values(cart);
+                if (cartItems.length === 0) {
+                    showToast('Your cart is empty', 'error');
+                    showPage('cart');
+                    return;
+                }
+                
+                elements.checkoutSummaryItems.innerHTML = '';
+                let subtotal = 0;
+                
+                cartItems.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    elements.checkoutSummaryItems.innerHTML += `
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-300">${item.title} (x${item.quantity})</span>
+                            <span class="font-medium text-white">$${itemTotal.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+                
+                const total = subtotal;
+                elements.checkoutSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+                elements.checkoutTotal.textContent = `$${total.toFixed(2)}`;
+                
+                showPage('checkout');
+            }
+            
+            function handlePlaceOrder(e) {
+                e.preventDefault();
+                
+                const button = elements.placeOrderButton;
+                const buttonText = button.querySelector('.button-text');
+                const buttonLoader = button.querySelector('.button-loader');
+                
+                button.disabled = true;
+                buttonText.classList.add('hidden');
+                buttonLoader.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    button.disabled = false;
+                    buttonText.classList.remove('hidden');
+                    buttonLoader.classList.add('hidden');
+                    
+                    openModal('confirmation-modal');
+                    
+                    // Add purchased courses to user's progress (just to simulate enrollment)
+                    Object.keys(cart).forEach(courseId => {
+                        if (!user.progress[courseId]) {
+                            user.progress[courseId] = []; // Add course to progress, but no lessons completed
+                        }
+                    });
+                    saveUser();
+                    
+                    elements.checkoutForm.reset();
+                    cart = {};
+                    saveCart();
+                    
+                    renderCart();
+                    updateCartIcon();
+                    updateDynamicButtons();
+                    renderDashboard(); // Re-render dashboard to show new courses
+                    
+                    elements.confirmationModal.querySelector('.modal-close').onclick = () => {
+                        closeModal();
+                        showPage('dashboard');
+                    };
+                    
+                }, 1500);
+            }
+
+            // --- AI LEARNING PATH (GEMINI API) ---
+
+            function handleGenerateLearningPath() {
+                const goal = elements.learningGoalInput.value.trim();
+                if (!goal) {
+                    elements.learningGoalInput.classList.add('animate-shake');
+                    setTimeout(() => elements.learningGoalInput.classList.remove('animate-shake'), 500);
+                    showToast('Please enter your learning goal', 'error');
+                    return;
+                }
+                
+                openModal('ai-path-modal');
+                elements.aiPathLoader.classList.remove('hidden');
+                elements.aiPathContent.classList.add('hidden');
+                elements.aiPathContent.innerHTML = '';
+                
+                elements.generatePathButton.disabled = true;
+                const buttonText = elements.generatePathButton.querySelector('.button-text');
+                const buttonLoader = elements.generatePathButton.querySelector('.button-loader');
+                buttonText.classList.add('hidden');
+                buttonLoader.classList.remove('hidden');
+
+                callGeminiApi(goal)
+                    .then(text => {
+                        elements.aiPathContent.innerHTML = formatApiResponse(text);
+                        elements.aiPathLoader.classList.add('hidden');
+                        elements.aiPathContent.classList.remove('hidden');
+                    })
+                    .catch(error => {
+                        console.error('Error calling Gemini API:', error);
+                        elements.aiPathContent.innerHTML = '<p class="text-red-400">Sorry, we couldn\'t generate your path at this time. Please try again later.</p>';
+                        elements.aiPathLoader.classList.add('hidden');
+                        elements.aiPathContent.classList.remove('hidden');
+                    })
+                    .finally(() => {
+                        elements.generatePathButton.disabled = false;
+                        buttonText.classList.remove('hidden');
+                        buttonLoader.classList.add('hidden');
+                    });
+            }
+
+            async function callGeminiApi(goal) {
+                const courseTitles = db.courses.map(course => course.title).join(', ');
+                const systemPrompt = `You are an expert curriculum designer for a crypto education platform. The available courses are: ${courseTitles}. Based on the user's goal, recommend a personalized learning path by suggesting which courses they should take, in what order, and briefly explain (1-2 sentences) why each course is important for their goal. If the goal is unrelated to crypto, politely decline and suggest the 'Blockchain Basics' course. Format the response as a clear, encouraging, step-by-step list. Use Markdown for bolding and numbered lists.`;
+                const userQuery = goal;
+
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                };
+
+                const response = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    console.error('API Error Body:', errorBody);
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    return candidate.content.parts[0].text;
+                } else {
+                    console.warn('Invalid response structure from API:', result);
+                    throw new Error('Invalid response structure from API.');
+                }
+            }
+
+            function formatApiResponse(text) {
+                return text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.length > 0)
+                    .map(line => {
+                        if (line.match(/^\s*(\d+)\.\s*/)) {
+                            return line.replace(/^\s*(\d+)\.\s*(.*)/, '<div class="flex items-start mb-2"><span class="font-bold text-brand-accent w-6 text-right mr-2">$1.</span><span class="flex-1">$2</span></div>');
+                        }
+                        return `<p>${line}</p>`;
+                    })
+                    .join('');
+            }
+
+            async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok && response.status === 429 && retries > 0) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return fetchWithRetry(url, options, retries - 1, delay * 2);
+                    }
+                    return response;
+                } catch (error) {
+                    if (retries > 0) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return fetchWithRetry(url, options, retries - 1, delay * 2);
+                    }
+                    throw error;
+                }
+            }
+            
+            // --- TOOLS PAGE CALCULATORS ---
+            
+            function handleProfitCalculator(e) {
+                e.preventDefault();
+                const buyPrice = parseFloat(elements.profitCalculator.querySelector('#buy-price').value);
+                const sellPrice = parseFloat(elements.profitCalculator.querySelector('#sell-price').value);
+                const amount = parseFloat(elements.profitCalculator.querySelector('#amount').value);
+                
+                if (isNaN(buyPrice) || isNaN(sellPrice) || isNaN(amount)) {
+                    elements.profitResult.innerHTML = `<span class="text-red-400">Please enter valid numbers.</span>`;
+                    return;
+                }
+                
+                const profit = (sellPrice - buyPrice) * amount;
+                if (profit > 0) {
+                    elements.profitResult.innerHTML = `Profit: <span class="text-green-400">$${profit.toFixed(2)}</span>`;
+                } else {
+                    elements.profitResult.innerHTML = `Loss: <span class="text-red-400">$${Math.abs(profit).toFixed(2)}</span>`;
+                }
+            }
+            
+            function handleGasCalculator(e) {
+                e.preventDefault();
+                const gasPrice = parseFloat(elements.gasCalculator.querySelector('#gas-price').value);
+                const gasLimit = parseFloat(elements.gasCalculator.querySelector('#gas-limit').value);
+                const ethPrice = parseFloat(elements.gasCalculator.querySelector('#eth-price').value);
+
+                if (isNaN(gasPrice) || isNaN(gasLimit) || isNaN(ethPrice)) {
+                    elements.gasResult.innerHTML = `<span class="text-red-400">Please enter valid numbers.</span>`;
+                    return;
+                }
+                
+                const feeInGwei = gasPrice * gasLimit;
+                const feeInEth = feeInGwei / 1_000_000_000;
+                const feeInUsd = feeInEth * ethPrice;
+                
+                elements.gasResult.innerHTML = `Fee: <span class="text-brand-accent">$${feeInUsd.toFixed(2)}</span> <span class="text-sm text-gray-400">(${feeInEth.toFixed(6)} ETH)</span>`;
+            }
+            
+            function handleLotSizeCalculator(e) {
+                e.preventDefault();
+                const balance = parseFloat(elements.lotSizeCalculator.querySelector('#account-balance').value);
+                const riskPercent = parseFloat(elements.lotSizeCalculator.querySelector('#risk-percentage').value);
+                const stopLossPips = parseFloat(elements.lotSizeCalculator.querySelector('#stop-loss').value);
+                const pipValue = parseFloat(elements.lotSizeCalculator.querySelector('#currency-pair').value);
+
+                if (isNaN(balance) || isNaN(riskPercent) || isNaN(stopLossPips) || isNaN(pipValue)) {
+                    elements.lotSizeResult.innerHTML = `<span class="text-red-400">Please enter valid numbers.</span>`;
+                    return;
+                }
+                
+                const riskAmount = (balance * riskPercent) / 100;
+                const riskPerPip = riskAmount / stopLossPips;
+                const lotSize = riskPerPip / pipValue;
+                
+                elements.lotSizeResult.innerHTML = `Lot Size: <span class="text-brand-accent">${lotSize.toFixed(2)}</span>`;
+            }
+
+            // --- EVENT LISTENERS ---
+            
+            function setupEventListeners() {
+                // Navigation
+                elements.navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        showPage(e.currentTarget.dataset.page);
+                    });
+                });
+                
+                elements.navLinkCategories.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        showPage(e.currentTarget.dataset.page, e.currentTarget.dataset.category);
+                    });
+                });
+                
+                elements.mobileMenuButton.addEventListener('click', toggleMobileMenu);
+
+                // Modals
+                elements.modalCloseButtons.forEach(button => button.addEventListener('click', closeModal));
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) closeModal();
+                    });
+                });
+
+                // User Auth
+                elements.userProfileButton.addEventListener('click', handleOpenAuthModal);
+                elements.dashboardLoginButton.addEventListener('click', () => openModal('signin-modal'));
+                elements.userSigninForm.addEventListener('submit', handleUserSignIn);
+                elements.userSignupForm.addEventListener('submit', handleUserSignUp);
+                elements.userLogoutButton.addEventListener('click', handleUserLogout);
+                elements.showSignupButton.addEventListener('click', () => openModal('signup-modal'));
+                elements.showSigninButton.addEventListener('click', () => openModal('signin-modal'));
+
+                // Wallet
+                elements.walletConnectButton.addEventListener('click', () => openModal('wallet-modal'));
+                elements.walletConnectButtonMobile.addEventListener('click', () => openModal('wallet-modal'));
+                elements.walletConnectOptions.forEach(btn => btn.addEventListener('click', handleSimulateConnection));
+                elements.walletDisconnectButton.addEventListener('click', handleDisconnectWallet);
+
+                // Courses, Filters, Glossary, Wishlist
+                elements.courseFilterContainer.addEventListener('click', (e) => {
+                    const button = e.target.closest('.filter-btn');
+                    if (button) {
+                        elements.courseFilterContainer.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        renderCourseList(button.dataset.category);
+                        updateDynamicButtons();
+                    }
+                });
+                
+                elements.courseListContainer.addEventListener('click', (e) => {
+                    if (e.target.closest('.add-to-cart-btn')) handleAddToCart(e);
+                    if (e.target.closest('.wishlist-btn')) handleWishlistToggle(e);
+                });
+                
+                setupGlossaryListeners();
+                
+                // Cart
+                elements.cartButton.addEventListener('click', () => showPage('cart'));
+                elements.cartItemsContainer.addEventListener('click', (e) => {
+                    const quantityBtn = e.target.closest('.cart-quantity-btn');
+                    const removeBtn = e.target.closest('.cart-remove-btn');
+                    
+                    if (quantityBtn) {
+                        const { id, change } = quantityBtn.dataset;
+                        updateCartQuantity(id, parseInt(change));
+                    }
+                    if (removeBtn) {
+                        const { id } = removeBtn.dataset;
+                        updateCartQuantity(id, -1 * (cart[id]?.quantity || 0));
+                    }
+                });
+                
+                // Checkout
+                elements.checkoutButton.addEventListener('click', handleCheckout);
+                elements.checkoutForm.addEventListener('submit', handlePlaceOrder);
+
+                // AI Path
+                elements.generatePathButton.addEventListener('click', handleGenerateLearningPath);
+                
+                // Tools Page
+                elements.profitCalculator.addEventListener('submit', handleProfitCalculator);
+                elements.gasCalculator.addEventListener('submit', handleGasCalculator);
+                elements.lotSizeCalculator.addEventListener('submit', handleLotSizeCalculator);
+            }
+            
+            function setupGlossaryListeners() {
+                document.querySelectorAll('.glossary-term').forEach(term => {
+                    term.removeEventListener('click', showGlossary); 
+                    term.addEventListener('click', showGlossary);
+                });
+            }
+            
+            // --- START THE APP ---
+            init();
+        });
+    </script>
+
+</body>
+</html>
